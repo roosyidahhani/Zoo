@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Learn Vocabulary - Past Tense Adventure</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .zoo-bg { background-color: #fffaf0; }
+        .flashcard { perspective: 1000px; height: 160px; }
+        .flashcard-inner {
+            position: relative; width: 100%; height: 100%;
+            text-align: center; transition: transform 0.6s;
+            transform-style: preserve-3d; cursor: pointer;
+        }
+        .flashcard.flipped .flashcard-inner { transform: rotateY(180deg); }
+        .flashcard-front, .flashcard-back {
+            position: absolute; width: 100%; height: 100%;
+            backface-visibility: hidden; display: flex;
+            flex-direction: column; justify-content: center;
+            align-items: center; border-radius: 1rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        .flashcard-back { transform: rotateY(180deg); }
+        .match-btn.selected { background-color: #f97316; color: white; transform: scale(1.05); }
+        .match-btn.matched { background-color: #22c55e; color: white; opacity: 0.5; cursor: default; }
+        .word-chip { cursor: pointer; transition: 0.2s; }
+        .word-chip:hover { transform: translateY(-2px); background-color: #fbbf24; }
+    </style>
+</head>
+<body class="zoo-bg min-h-screen text-slate-800 font-sans pb-20">
+
+    <div class="max-w-6xl mx-auto px-4 py-8">
+        <!-- Main Title -->
+        <header class="text-center mb-10">
+            <h1 class="text-6xl font-black text-orange-600 mb-2">Learn Vocabulary</h1>
+            <p class="text-xl text-orange-400 font-bold uppercase tracking-widest">Mastering Past Tense is Fun!</p>
+        </header>
+
+        <!-- Navigation Tabs -->
+        <nav class="flex flex-wrap gap-2 mb-8 bg-orange-100 p-2 rounded-2xl justify-center shadow-inner">
+            <button onclick="switchTab('lesson')" id="tab-lesson" class="tab-btn px-4 py-2 rounded-xl font-bold transition-all bg-orange-600 text-white shadow-md">Lesson</button>
+            <button onclick="switchTab('vocab')" id="tab-vocab" class="tab-btn px-4 py-2 rounded-xl font-bold transition-all text-orange-700 hover:bg-orange-200">Vocab</button>
+            <button onclick="switchTab('match')" id="tab-match" class="tab-btn px-4 py-2 rounded-xl font-bold transition-all text-orange-700 hover:bg-orange-200">Match Up</button>
+            <button onclick="switchTab('fill')" id="tab-fill" class="tab-btn px-4 py-2 rounded-xl font-bold transition-all text-orange-700 hover:bg-orange-200">Fill In</button>
+            <button onclick="switchTab('spelling')" id="tab-spelling" class="tab-btn px-4 py-2 rounded-xl font-bold transition-all text-orange-700 hover:bg-orange-200">Spelling Bee</button>
+            <button onclick="switchTab('scramble')" id="tab-scramble" class="tab-btn px-4 py-2 rounded-xl font-bold transition-all text-orange-700 hover:bg-orange-200">Scramble</button>
+            <button onclick="switchTab('arrange')" id="tab-arrange" class="tab-btn px-4 py-2 rounded-xl font-bold transition-all text-orange-700 hover:bg-orange-200">Arrange</button>
+        </nav>
+
+        <!-- 1. Lesson -->
+        <div id="content-lesson" class="tab-content block">
+            <div class="space-y-8">
+                <!-- Dialogue First -->
+                <div class="bg-white p-8 rounded-3xl shadow-md border-2 border-orange-200 relative overflow-hidden">
+                    <div class="absolute top-0 right-0 p-4 opacity-10">
+                        <svg width="100" height="100" viewBox="0 0 24 24" fill="currentColor"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
+                    </div>
+                    <h2 class="text-2xl font-black text-orange-600 mb-6 flex items-center">
+                        <span class="bg-orange-600 text-white p-2 rounded-lg mr-3">1</span>
+                        Read This Dialogue!
+                    </h2>
+                    <div class="space-y-4 text-3xl font-medium text-slate-700">
+                        <div class="flex gap-4">
+                            <span class="text-orange-500 font-bold w-24">Pipit:</span>
+                            <p>"What animal <span class="text-blue-600 underline">did</span> you <span class="text-blue-600 underline font-bold">see</span> at the zoo?"</p>
+                        </div>
+                        <div class="flex gap-4">
+                            <span class="text-green-600 font-bold w-24">Bara:</span>
+                            <p>"I <span class="text-green-600 underline font-bold">saw</span> an elephant."</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Explanation -->
+                <div class="bg-orange-600 p-8 rounded-3xl shadow-xl text-white">
+                    <h2 class="text-3xl font-black mb-4 italic">Did You Know?</h2>
+                    <p class="text-xl leading-relaxed">
+                        When we talk about things that already happened (like yesterday's trip or this morning), we use the Past Tense. 
+                        The main rule is: the verb changes its form!
+                    </p>
+                </div>
+
+                <!-- Grammar Rules -->
+                <div class="grid md:grid-cols-2 gap-8">
+                    <div class="bg-white p-8 rounded-3xl shadow-md border-t-8 border-green-500">
+                        <h3 class="text-2xl font-bold text-green-700 mb-4 italic">A. Telling Stories (+)</h3>
+                        <p class="text-lg text-slate-600 mb-4">Use the second form of the verb (Verb 2).</p>
+                        <div class="bg-green-50 p-6 rounded-2xl font-mono text-2xl border-2 border-green-100">
+                            Subject + <span class="text-green-600 font-bold">Verb 2</span>
+                        </div>
+                        <p class="mt-4 text-sm text-slate-500 italic">Example: "I saw an elephant." (It happened in the past)</p>
+                    </div>
+                    <div class="bg-white p-8 rounded-3xl shadow-md border-t-8 border-blue-500">
+                        <h3 class="text-2xl font-bold text-blue-700 mb-4 italic">B. Asking Questions (?)</h3>
+                        <p class="text-lg text-slate-600 mb-4">Use Did and go back to Verb 1.</p>
+                        <div class="bg-blue-50 p-6 rounded-2xl font-mono text-2xl border-2 border-blue-100">
+                            <span class="text-blue-600 font-bold">Did</span> + Subject + <span class="text-blue-600 font-bold">Verb 1</span>?
+                        </div>
+                        <p class="mt-4 text-sm text-slate-500 italic">Example: "Did you see the lion?" (Asking about the past)</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. Vocab Flip Cards -->
+        <div id="content-vocab" class="tab-content hidden">
+            <h2 class="text-3xl font-bold text-orange-800 mb-6 text-center">Verb 1 to Verb 2 Flashcards</h2>
+            <div class="grid lg:grid-cols-4 md:grid-cols-3 grid-cols-2 gap-4" id="vocab-grid"></div>
+        </div>
+
+        <!-- 3. Match Up -->
+        <div id="content-match" class="tab-content hidden space-y-10">
+            <!-- Mode A: Pair Words -->
+            <div class="bg-white p-8 rounded-3xl shadow-md border-2 border-orange-100">
+                <h3 class="text-2xl font-bold text-orange-700 mb-6 text-center">Tap to Pair V1 and V2</h3>
+                <div class="grid grid-cols-2 gap-8 max-w-xl mx-auto" id="match-pairing-area"></div>
+            </div>
+            <!-- Mode B: Conversation Choice -->
+            <div class="bg-white p-8 rounded-3xl shadow-md border-2 border-blue-100">
+                <h3 class="text-2xl font-bold text-blue-700 mb-6 text-center">Choose the Correct Response</h3>
+                <div class="space-y-6" id="match-convo-area"></div>
+                <div class="text-center mt-6">
+                    <button onclick="checkConvoMatch()" class="bg-blue-600 text-white px-8 py-3 rounded-xl font-bold shadow-lg hover:bg-blue-700 transition">Check Conversations</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4. Fill In -->
+        <div id="content-fill" class="tab-content hidden">
+            <div class="bg-white p-8 rounded-3xl shadow-md border-2 border-orange-200">
+                <h2 class="text-3xl font-bold text-orange-800 mb-8 text-center">Fill In the Blank</h2>
+                <div class="space-y-6" id="fill-quiz-area"></div>
+                <div class="mt-10 text-center">
+                    <button onclick="checkFillAnswers()" class="bg-orange-600 text-white px-10 py-4 rounded-2xl text-2xl font-bold shadow-lg hover:bg-orange-700 transition">Check Answers</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 5. Spelling Bee -->
+        <div id="content-spelling" class="tab-content hidden">
+            <div class="bg-white p-8 rounded-3xl shadow-md border-2 border-yellow-200">
+                <h2 class="text-3xl font-bold text-yellow-800 mb-8 text-center">Spelling Bee</h2>
+                <p class="text-center text-slate-500 mb-6">Type the Verb 2 form correctly!</p>
+                <div class="space-y-6 max-w-2xl mx-auto" id="spelling-area"></div>
+                <div class="mt-10 text-center">
+                    <button onclick="checkSpelling()" class="bg-yellow-600 text-white px-10 py-4 rounded-2xl text-2xl font-bold shadow-lg hover:bg-yellow-700 transition">Check Spelling</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 6. Scramble -->
+        <div id="content-scramble" class="tab-content hidden">
+            <div class="bg-white p-8 rounded-3xl shadow-md border-2 border-purple-200">
+                <h2 class="text-3xl font-bold text-purple-800 mb-8 text-center">Word Scramble</h2>
+                <p class="text-center text-slate-500 mb-6">Unscramble the letters to find the Verb 2!</p>
+                <div class="space-y-8 max-w-2xl mx-auto" id="scramble-area"></div>
+                <div class="mt-10 text-center">
+                    <button onclick="checkScramble()" class="bg-purple-600 text-white px-10 py-4 rounded-2xl text-2xl font-bold shadow-lg hover:bg-purple-700 transition">Check Words</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 7. Arrange -->
+        <div id="content-arrange" class="tab-content hidden">
+            <div class="bg-white p-8 rounded-3xl shadow-md border-2 border-green-200">
+                <h2 class="text-3xl font-bold text-green-800 mb-8 text-center">Arrange the Sentence</h2>
+                <p class="text-center text-slate-500 mb-6">Tap the words in the correct order!</p>
+                <div class="space-y-12" id="arrange-area"></div>
+                <div class="mt-10 text-center">
+                    <button onclick="checkArrange()" class="bg-green-600 text-white px-10 py-4 rounded-2xl text-2xl font-bold shadow-lg hover:bg-green-700 transition">Check Sentences</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const vocabData = [
+            {v1: "Eat", v2: "Ate", def: "Makan"},
+            {v1: "Drink", v2: "Drank", def: "Minum"},
+            {v1: "Go", v2: "Went", def: "Pergi"},
+            {v1: "See", v2: "Saw", def: "Melihat"},
+            {v1: "Run", v2: "Ran", def: "Lari"},
+            {v1: "Buy", v2: "Bought", def: "Membeli"},
+            {v1: "Take", v2: "Took", def: "Mengambil"},
+            {v1: "Walk", v2: "Walked", def: "Berjalan"},
+            {v1: "Watch", v2: "Watched", def: "Menonton"},
+            {v1: "Visit", v2: "Visited", def: "Mengunjungi"}
+        ];
+
+        const convoData = [
+            { q: "Pipit: What did you see?", choices: ["I saw a lion", "I see a lion", "I was saw a lion"], a: "I saw a lion" },
+            { q: "Bara: Did you eat banana?", choices: ["Yes, I eat", "Yes, I ate", "Yes, I am eat"], a: "Yes, I ate" },
+            { q: "Teacher: Where did she go?", choices: ["She goes home", "She go home", "She went home"], a: "She went home" },
+            { q: "Sita: Did you enjoy the zoo?", choices: ["Yes, I liked it", "Yes, I like it", "Yes, I am like"], a: "Yes, I liked it" },
+            { q: "Tom: What did they do?", choices: ["They played ball", "They play ball", "They are play"], a: "They played ball" }
+        ];
+
+        const arrangeData = [
+            { words: ["saw", "I", "a", "tiger"], correct: "I saw a tiger" },
+            { words: ["did", "she", "what", "buy", "?"], correct: "what did she buy ?" },
+            { words: ["they", "to", "went", "park", "the"], correct: "they went to the park" },
+            { words: ["ate", "we", "pizza", "delicious"], correct: "we ate delicious pizza" },
+            { words: ["you", "see", "did", "him", "?"], correct: "did you see him ?" }
+        ];
+
+        let selV1 = null; let selV2 = null;
+
+        window.onload = () => {
+            initVocab();
+            initMatchPairing();
+            initConvoMatch();
+            initFillIn();
+            initSpelling();
+            initScramble();
+            initArrange();
+        };
+
+        function switchTab(name) {
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.add('hidden'));
+            document.getElementById('content-' + name).classList.remove('hidden');
+            document.querySelectorAll('.tab-btn').forEach(b => {
+                b.classList.remove('bg-orange-600', 'text-white', 'shadow-md');
+                b.classList.add('text-orange-700', 'hover:bg-orange-200');
+            });
+            const active = document.getElementById('tab-' + name);
+            active.classList.add('bg-orange-600', 'text-white', 'shadow-md');
+            active.classList.remove('text-orange-700', 'hover:bg-orange-200');
+        }
+
+        function initVocab() {
+            const grid = document.getElementById('vocab-grid');
+            vocabData.forEach(v => {
+                grid.innerHTML += `
+                <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                    <div class="flashcard-inner">
+                        <div class="flashcard-front bg-white border-2 border-orange-100">
+                            <h3 class="text-3xl font-black text-orange-500">${v.v1}</h3>
+                            <p class="text-sm text-slate-400 mt-2">Tap to see Past Tense</p>
+                        </div>
+                        <div class="flashcard-back bg-orange-500 text-white p-4">
+                            <span class="text-xs font-bold uppercase opacity-70">Past Tense (Verb 2)</span>
+                            <h3 class="text-3xl font-black">${v.v2}</h3>
+                            <p class="text-sm mt-2">Meaning: ${v.def}</p>
+                        </div>
+                    </div>
+                </div>`;
+            });
+        }
+
+        function initMatchPairing() {
+            const area = document.getElementById('match-pairing-area');
+            const gameData = [...vocabData].sort(() => Math.random() - 0.5).slice(0, 5);
+            const v1s = gameData.map(d => ({id: d.v1, t: d.v1})).sort(() => Math.random() - 0.5);
+            const v2s = gameData.map(d => ({id: d.v1, t: d.v2})).sort(() => Math.random() - 0.5);
+            let htmlV1 = '<div class="space-y-2">'; v1s.forEach(x => htmlV1 += `<button class="match-btn w-full p-3 border-2 rounded-xl bg-white font-bold" data-id="${x.id}" data-type="v1" onclick="handlePairClick(this)">${x.t}</button>`); htmlV1 += '</div>';
+            let htmlV2 = '<div class="space-y-2">'; v2s.forEach(x => htmlV2 += `<button class="match-btn w-full p-3 border-2 rounded-xl bg-white font-bold" data-id="${x.id}" data-type="v2" onclick="handlePairClick(this)">${x.t}</button>`); htmlV2 += '</div>';
+            area.innerHTML = htmlV1 + htmlV2;
+        }
+
+        function handlePairClick(btn) {
+            if (btn.classList.contains('matched')) return;
+            const type = btn.dataset.type;
+            document.querySelectorAll(`[data-type="${type}"]`).forEach(b => b.classList.remove('selected'));
+            btn.classList.add('selected');
+            if (type === 'v1') selV1 = btn; else selV2 = btn;
+            if (selV1 && selV2) {
+                if (selV1.dataset.id === selV2.dataset.id) { 
+                    selV1.classList.replace('selected', 'matched'); 
+                    selV2.classList.replace('selected', 'matched'); 
+                } else { 
+                    const b1 = selV1; const b2 = selV2; 
+                    b1.classList.add('border-red-500'); b2.classList.add('border-red-500'); 
+                    setTimeout(() => { b1.classList.remove('border-red-500', 'selected'); b2.classList.remove('border-red-500', 'selected'); }, 500); 
+                }
+                selV1 = null; selV2 = null;
+            }
+        }
+
+        function initConvoMatch() {
+            const area = document.getElementById('match-convo-area');
+            convoData.forEach((d, i) => {
+                area.innerHTML += `<div class="p-4 bg-blue-50 rounded-xl border border-blue-100"><p class="font-bold text-lg mb-2">${d.q}</p><div class="flex flex-wrap gap-2">${d.choices.map(c => `<button class="choice-btn px-4 py-2 bg-white border rounded-lg text-sm font-medium hover:bg-blue-100 transition" onclick="selectChoice(this, ${i})">${c}</button>`).join('')}</div></div>`;
+            });
+        }
+
+        function selectChoice(btn, idx) {
+            btn.parentElement.querySelectorAll('button').forEach(b => b.classList.remove('bg-blue-500', 'text-white'));
+            btn.classList.add('bg-blue-500', 'text-white');
+            convoData[idx].userAns = btn.innerText;
+        }
+
+        function checkConvoMatch() {
+            let correct = 0; convoData.forEach(d => { if(d.userAns === d.a) correct++; });
+            alert(`Great Job! You got ${correct} out of ${convoData.length} correct!`);
+        }
+
+        function initFillIn() {
+            const area = document.getElementById('fill-quiz-area');
+            const data = [
+                {q: "I ____ (go) to the park last week.", a: "went"}, 
+                {q: "Did you ____ (see) the monkeys?", a: "see"}, 
+                {q: "They ____ (eat) all the bananas.", a: "ate"}, 
+                {q: "He ____ (buy) a new hat yesterday.", a: "bought"}, 
+                {q: "We ____ (walk) home because we missed the bus.", a: "walked"}
+            ];
+            data.forEach((d, i) => { area.innerHTML += `<div class="p-4 bg-orange-50 rounded-xl"><p class="text-xl mb-2">${i+1}. ${d.q}</p><input type="text" data-ans="${d.a}" class="fill-input w-full p-3 rounded-lg border-2 border-orange-200 outline-none uppercase" placeholder="Type answer here..."></div>`; });
+        }
+
+        function checkFillAnswers() {
+            document.querySelectorAll('.fill-input').forEach(i => {
+                if(i.value.trim().toLowerCase() === i.dataset.ans.toLowerCase()) {
+                    i.classList.remove('border-orange-200', 'bg-red-100', 'border-red-500');
+                    i.classList.add('bg-green-100', 'border-green-500');
+                } else {
+                    i.classList.remove('border-orange-200', 'bg-green-100', 'border-green-500');
+                    i.classList.add('bg-red-100', 'border-red-500');
+                }
+            });
+        }
+
+        function initSpelling() {
+            const area = document.getElementById('spelling-area');
+            vocabData.slice(0, 5).forEach(d => { 
+                area.innerHTML += `
+                <div class="flex items-center gap-4 bg-yellow-50 p-4 rounded-xl border border-yellow-100">
+                    <div class="flex-1">
+                        <span class="text-xs font-bold text-yellow-600 uppercase">Verb 1: ${d.v1}</span>
+                        <p class="text-lg font-bold">What is the Verb 2?</p>
+                    </div>
+                    <input type="text" data-ans="${d.v2}" class="spelling-input w-40 p-3 rounded-lg border-2 border-yellow-200 uppercase outline-none">
+                </div>`; 
+            });
+        }
+
+        function checkSpelling() {
+            document.querySelectorAll('.spelling-input').forEach(i => {
+                if(i.value.trim().toLowerCase() === i.dataset.ans.toLowerCase()) i.classList.replace('border-yellow-200', 'border-green-500');
+                else i.classList.replace('border-yellow-200', 'border-red-500');
+            });
+        }
+
+        function initScramble() {
+            const area = document.getElementById('scramble-area');
+            vocabData.slice(5, 10).forEach(d => {
+                const scrambled = d.v2.split('').sort(() => Math.random() - 0.5).join('');
+                area.innerHTML += `
+                <div class="p-4 bg-purple-50 rounded-xl border border-purple-100 text-center">
+                    <span class="text-3xl font-black tracking-widest text-purple-600 uppercase mb-4 block">${scrambled}</span>
+                    <input type="text" data-ans="${d.v2}" class="scramble-input w-full p-3 rounded-lg border-2 border-purple-200 uppercase outline-none text-center" placeholder="Correct Verb 2...">
+                </div>`;
+            });
+        }
+
+        function checkScramble() {
+            document.querySelectorAll('.scramble-input').forEach(i => {
+                if(i.value.trim().toLowerCase() === i.dataset.ans.toLowerCase()) i.classList.add('bg-green-100'); else i.classList.add('bg-red-100');
+            });
+        }
+
+        function initArrange() {
+            const area = document.getElementById('arrange-area');
+            arrangeData.forEach((d, i) => {
+                const shuffled = [...d.words].sort(() => Math.random() - 0.5);
+                area.innerHTML += `
+                <div>
+                    <div class="flex flex-wrap gap-2 mb-3" id="pool-${i}">
+                        ${shuffled.map(w => `<span class="word-chip bg-white px-4 py-2 rounded-lg border-2 border-green-200 font-bold" onclick="moveWord(this, ${i})">${w}</span>`).join('')}
+                    </div>
+                    <div class="min-h-[60px] bg-slate-100 p-4 rounded-xl border-2 border-dashed border-slate-300 flex flex-wrap gap-2" id="target-${i}"></div>
+                </div>`;
+            });
+        }
+
+        function moveWord(el, i) {
+            const target = document.getElementById(`target-${i}`); const pool = document.getElementById(`pool-${i}`);
+            if(el.parentElement.id.startsWith('pool')) target.appendChild(el); else pool.appendChild(el);
+        }
+
+        function checkArrange() {
+            arrangeData.forEach((d, i) => {
+                const target = document.getElementById(`target-${i}`);
+                if(Array.from(target.children).map(c => c.innerText).join(' ').toLowerCase() === d.correct.toLowerCase()) {
+                    target.classList.replace('border-slate-300', 'border-green-400');
+                    target.classList.add('bg-green-100');
+                } else {
+                    target.classList.replace('border-slate-300', 'border-red-400');
+                    target.classList.add('bg-red-100');
+                }
+            });
+        }
+    </script>
+</body>
+</html>

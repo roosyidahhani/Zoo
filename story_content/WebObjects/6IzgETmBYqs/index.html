@@ -1,0 +1,141 @@
+import React, { useState } from 'react';
+import { BookOpen, TreeDeciduous, Leaf, Footprints, Info } from 'lucide-react';
+
+const App = () => {
+  const [activeTab, setActiveTab] = useState('Nouns');
+  const [flippedWord, setFlippedWord] = useState(null);
+
+  const vocabulary = {
+    Nouns: [
+      { english: 'Family', indonesian: 'Keluarga' },
+      { english: 'Zoo', indonesian: 'Kebun Binatang' },
+      { english: 'Lion', indonesian: 'Singa' },
+      { english: 'Elephant', indonesian: 'Gajah' },
+      { english: 'Monkey', indonesian: 'Monyet' },
+      { english: 'Bird', indonesian: 'Burung' },
+      { english: 'Trunk', indonesian: 'Belalai' },
+      { english: 'Teeth', indonesian: 'Gigi' }
+    ],
+    Adjectives: [
+      { english: 'Big', indonesian: 'Besar' },
+      { english: 'Strong', indonesian: 'Kuat' },
+      { english: 'Sharp', indonesian: 'Tajam' },
+      { english: 'Small', indonesian: 'Kecil' },
+      { english: 'Funny', indonesian: 'Lucu' },
+      { english: 'Colorful', indonesian: 'Berwarna-warni' },
+      { english: 'Happy', indonesian: 'Bahagia' }
+    ],
+    Verbs: [
+      { english: 'Went', indonesian: 'Pergi (lampau)' },
+      { english: 'Saw', indonesian: 'Melihat (lampau)' },
+      { english: 'Climb', indonesian: 'Memanjat' },
+      { english: 'Fly', indonesian: 'Terbang' },
+      { english: 'Liked', indonesian: 'Menyukai (lampau)' }
+    ],
+    Places: [
+      { english: 'Savanna', indonesian: 'Sabana' },
+      { english: 'Forest', indonesian: 'Hutan' },
+      { english: 'Jungle', indonesian: 'Rimba' },
+      { english: 'Sky', indonesian: 'Langit' },
+      { english: 'Trees', indonesian: 'Pohon-pohon' }
+    ]
+  };
+
+  const tabs = Object.keys(vocabulary);
+
+  const getTabIcon = (tab) => {
+    switch (tab) {
+      case 'Nouns': return <Footprints className="w-5 h-5" />;
+      case 'Adjectives': return <Info className="w-5 h-5" />;
+      case 'Verbs': return <Leaf className="w-5 h-5" />;
+      case 'Places': return <TreeDeciduous className="w-5 h-5" />;
+      default: return <BookOpen className="w-5 h-5" />;
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-orange-50 p-4 md:p-8 font-sans">
+      <div className="max-w-4xl mx-auto">
+        {/* Header */}
+        <header className="bg-green-700 text-white p-6 rounded-2xl shadow-lg mb-8 text-center border-b-4 border-green-900">
+          <h1 className="text-3xl md:text-4xl font-bold mb-2 flex items-center justify-center gap-3">
+            🦁 Zoo Vocab Trainer 🐘
+          </h1>
+          <p className="text-green-100 italic">Belajar kosakata dari teks "A Trip to the Zoo"</p>
+        </header>
+
+        {/* Tab Navigation */}
+        <div className="flex flex-wrap gap-2 mb-6 bg-green-100 p-2 rounded-xl border border-green-200">
+          {tabs.map((tab) => (
+            <button
+              key={tab}
+              onClick={() => {
+                setActiveTab(tab);
+                setFlippedWord(null);
+              }}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg font-semibold transition-all duration-300 ${
+                activeTab === tab
+                  ? 'bg-green-600 text-white shadow-md transform scale-105'
+                  : 'text-green-800 hover:bg-green-200'
+              }`}
+            >
+              {getTabIcon(tab)}
+              {tab}
+            </button>
+          ))}
+        </div>
+
+        {/* Vocabulary Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+          {vocabulary[activeTab].map((item, index) => (
+            <div
+              key={index}
+              onClick={() => setFlippedWord(flippedWord === index ? null : index)}
+              className="group cursor-pointer h-32 perspective-1000"
+            >
+              <div
+                className={`relative w-full h-full transition-transform duration-500 transform-style-3d ${
+                  flippedWord === index ? 'rotate-y-180' : ''
+                }`}
+              >
+                {/* Front Side */}
+                <div className="absolute inset-0 backface-hidden bg-white border-2 border-orange-200 rounded-xl shadow-sm flex flex-col items-center justify-center p-4 hover:border-green-400 transition-colors">
+                  <span className="text-sm text-orange-400 font-bold uppercase tracking-wider mb-1">
+                    {activeTab.slice(0, -1)}
+                  </span>
+                  <span className="text-xl font-bold text-gray-800">{item.english}</span>
+                  <div className="mt-2 text-xs text-gray-400 italic">Tap to translate</div>
+                </div>
+
+                {/* Back Side (Indonesian) */}
+                <div className="absolute inset-0 backface-hidden rotate-y-180 bg-green-600 text-white border-2 border-green-700 rounded-xl shadow-lg flex flex-col items-center justify-center p-4">
+                  <span className="text-xs text-green-200 uppercase mb-1">Indonesia</span>
+                  <span className="text-xl font-bold">{item.indonesian}</span>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* CSS for flipping effect */}
+        <style dangerouslySetInnerHTML={{ __html: `
+          .perspective-1000 { perspective: 1000px; }
+          .backface-hidden { backface-visibility: hidden; -webkit-backface-visibility: hidden; }
+          .transform-style-3d { transform-style: preserve-3d; }
+          .rotate-y-180 { transform: rotateY(180deg); }
+        `}} />
+
+        {/* Footer info */}
+        <footer className="mt-12 text-center text-gray-500 text-sm">
+          <p>Klik pada kartu untuk melihat arti kata dalam bahasa Indonesia.</p>
+          <div className="mt-4 flex justify-center gap-4">
+            <span className="flex items-center gap-1"><div className="w-3 h-3 bg-white border border-orange-200 rounded"></div> English</span>
+            <span className="flex items-center gap-1"><div className="w-3 h-3 bg-green-600 rounded"></div> Indonesia</span>
+          </div>
+        </footer>
+      </div>
+    </div>
+  );
+};
+
+export default App;

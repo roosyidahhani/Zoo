@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Let's Speak - Zoo Adventure</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Quicksand:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Quicksand', sans-serif;
+            background-color: #ffffff;
+            color: #4b2c20;
+            overflow-x: hidden;
+        }
+        h1, h2, h3 {
+            font-family: 'Fredoka One', cursive;
+        }
+        .orange-theme-bg {
+            background: linear-gradient(to bottom, #fff7ed 0%, #ffffff 100%);
+            min-height: 100vh;
+        }
+        .wood-panel {
+            background-color: #f97316;
+            border: 4px solid #ea580c;
+            border-radius: 15px;
+            box-shadow: 0 8px 0 #9a3412;
+            color: white;
+        }
+        .animal-card {
+            transition: transform 0.3s, box-shadow 0.3s;
+            cursor: pointer;
+            border: 4px solid #ffedd5;
+            overflow: hidden;
+            background: white;
+            position: relative;
+        }
+        .animal-card img {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+        }
+        .animal-card:hover {
+            transform: translateY(-8px);
+            border-color: #f97316;
+        }
+        .animal-card.selected {
+            border-color: #f97316;
+            box-shadow: 0 0 20px rgba(249, 115, 22, 0.4);
+        }
+        .animal-card.selected::after {
+            content: '✓';
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #f97316;
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+        .btn-adventure {
+            background-color: #f97316;
+            color: white;
+            padding: 12px 32px;
+            border-radius: 50px;
+            box-shadow: 0 4px 0 #ea580c;
+            transition: all 0.2s;
+            font-family: 'Fredoka One', cursive;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn-adventure:active {
+            transform: translateY(2px);
+            box-shadow: 0 2px 0 #ea580c;
+        }
+        .btn-adventure:disabled {
+            background-color: #fed7aa;
+            box-shadow: 0 4px 0 #fdba74;
+            cursor: not-allowed;
+        }
+        .btn-back {
+            background-color: #ffffff;
+            color: #f97316;
+            border: 2px solid #f97316;
+            padding: 8px 20px;
+            border-radius: 50px;
+            font-family: 'Fredoka One', cursive;
+            transition: all 0.2s;
+        }
+        .btn-back:hover {
+            background-color: #fff7ed;
+        }
+        .step-indicator {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            background: #ffedd5;
+            color: #ea580c;
+            border: 2px solid #fed7aa;
+            z-index: 10;
+        }
+        .step-active {
+            background: #f97316 !important;
+            color: white !important;
+            box-shadow: 0 0 15px rgba(249, 115, 22, 0.4);
+        }
+        .fade-in {
+            animation: fadeIn 0.6s ease-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .build-step {
+            border-left: 4px solid #fed7aa;
+            padding-left: 20px;
+            margin-bottom: 30px;
+            transition: all 0.3s;
+        }
+        .build-step.active {
+            border-left-color: #f97316;
+            background-color: #fffaf5;
+        }
+        .error-message {
+            color: #ef4444;
+            font-weight: bold;
+            font-size: 0.875rem;
+            margin-top: 0.5rem;
+            display: none;
+        }
+        input::placeholder {
+            color: #fdba74;
+            font-size: 0.9em;
+        }
+        .chat-bubble {
+            position: relative;
+            background: white;
+            border: 2px solid #fed7aa;
+            border-radius: 20px;
+            padding: 15px;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="orange-theme-bg pb-20">
+    <header class="p-8 text-center">
+        <h1 class="text-5xl md:text-7xl text-orange-600 drop-shadow-md mb-2">Let's Speak! 🐾</h1>
+        <p class="text-xl font-semibold text-orange-400 tracking-widest uppercase">Zoo Adventure: Guess & Build</p>
+    </header>
+
+    <!-- Navigation -->
+    <div class="max-w-2xl mx-auto flex justify-between px-6 mb-8 relative">
+        <div class="absolute top-1/2 left-0 w-full h-1 bg-orange-100 -z-10 -translate-y-1/2"></div>
+        <div id="nav-1" class="step-indicator step-active">1</div>
+        <div id="nav-2" class="step-indicator">2</div>
+        <div id="nav-3" class="step-indicator">3</div>
+        <div id="nav-4" class="step-indicator">4</div>
+        <div id="nav-5" class="step-indicator">5</div>
+    </div>
+
+    <main class="max-w-5xl mx-auto px-4">
+        
+        <!-- PERSISTENT ANIMAL PREVIEW -->
+        <div id="side-preview" class="hidden mb-8 fade-in">
+            <div class="flex items-center gap-4 bg-white p-3 rounded-2xl border-2 border-orange-200 shadow-sm max-w-xs mx-auto">
+                <img id="mini-animal-img" src="" class="w-20 h-20 object-cover rounded-xl border-2 border-orange-100">
+                <div>
+                    <p class="text-sm font-bold text-orange-400 uppercase tracking-tighter">Your Choice</p>
+                    <p class="text-lg font-bold text-orange-800" id="mini-animal-hint">Animal</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- ZONE 1: THINK -->
+        <section id="zone-1" class="zone fade-in">
+            <div class="wood-panel p-8 mb-10 text-center">
+                <h2 class="text-4xl mb-2">ZONE 1: THINK 🧠</h2>
+                <p class="text-xl italic opacity-90">"Look at the photos. Which animal do you want to describe?"</p>
+            </div>
+            
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12">
+                <!-- Lion -->
+                <div class="animal-card rounded-2xl shadow-lg border-4" onclick="selectAnimal('lion', 'https://images.squarespace-cdn.com/content/v1/5b061f0e0dbda31446baccc0/1527900437348-WNFWFJKET0AD44SHIPGJ/african-lion-wallpapers-hd.jpg?format=2500w')">
+                    <img src="https://images.squarespace-cdn.com/content/v1/5b061f0e0dbda31446baccc0/1527900437348-WNFWFJKET0AD44SHIPGJ/african-lion-wallpapers-hd.jpg?format=2500w" alt="Lion">
+                </div>
+                <!-- Elephant -->
+                <div class="animal-card rounded-2xl shadow-lg border-4" onclick="selectAnimal('elephant', 'https://images.unsplash.com/photo-1557050543-4d5f4e07ef46?auto=format&fit=crop&w=400&q=80')">
+                    <img src="https://images.unsplash.com/photo-1557050543-4d5f4e07ef46?auto=format&fit=crop&w=400&q=80" alt="Elephant">
+                </div>
+                <!-- Monkey -->
+                <div class="animal-card rounded-2xl shadow-lg border-4" onclick="selectAnimal('monkey', 'https://images.unsplash.com/photo-1540573133985-87b6da6d54a9?auto=format&fit=crop&w=400&q=80')">
+                    <img src="https://images.unsplash.com/photo-1540573133985-87b6da6d54a9?auto=format&fit=crop&w=400&q=80" alt="Monkey">
+                </div>
+                <!-- Bird -->
+                <div class="animal-card rounded-2xl shadow-lg border-4" onclick="selectAnimal('bird', 'https://cdn.britannica.com/10/250610-050-BC5CCDAF/Zebra-finch-Taeniopygia-guttata-bird.jpg')">
+                    <img src="https://cdn.britannica.com/10/250610-050-BC5CCDAF/Zebra-finch-Taeniopygia-guttata-bird.jpg" alt="Bird">
+                </div>
+                <!-- Crocodile -->
+                <div class="animal-card rounded-2xl shadow-lg border-4" onclick="selectAnimal('crocodile', 'https://www.thinkingaustralia.com/wp-content/uploads/2015/03/TA_ANIMALS_DETAIL_01_03-750x290.jpg')">
+                    <img src="https://www.thinkingaustralia.com/wp-content/uploads/2015/03/TA_ANIMALS_DETAIL_01_03-750x290.jpg" alt="Crocodile">
+                </div>
+                <!-- Eagle -->
+                <div class="animal-card rounded-2xl shadow-lg border-4" onclick="selectAnimal('eagle', 'https://cdn.download.ams.birds.cornell.edu/api/v2/asset/636107892/1200')">
+                    <img src="https://cdn.download.ams.birds.cornell.edu/api/v2/asset/636107892/1200" alt="Eagle">
+                </div>
+                <!-- Salamander -->
+                <div class="animal-card rounded-2xl shadow-lg border-4" onclick="selectAnimal('salamander', 'https://cdn.britannica.com/22/248822-050-BC14C804/Fire-salamander.jpg')">
+                    <img src="https://cdn.britannica.com/22/248822-050-BC14C804/Fire-salamander.jpg" alt="Salamander">
+                </div>
+            </div>
+
+            <div id="selection-confirm" class="hidden text-center">
+                <button class="btn-adventure text-xl" onclick="goToZone(2)">▶️ START COMPOSING</button>
+            </div>
+        </section>
+
+        <!-- ZONE 2: BUILD -->
+        <section id="zone-2" class="zone hidden fade-in">
+            <div class="wood-panel p-8 mb-10 text-center">
+                <h2 class="text-4xl mb-2">ZONE 2: BUILD ✍️</h2>
+                <p class="text-xl italic opacity-90">"Type your own words to build your story sentence."</p>
+            </div>
+
+            <div class="bg-white p-10 rounded-3xl shadow-2xl mb-10 border-t-8 border-orange-500">
+                
+                <!-- STEP 1: Animal Name -->
+                <div id="step-a" class="build-step active">
+                    <h3 class="text-orange-600 font-bold mb-2">Step 1: What animal is it?</h3>
+                    <div class="text-2xl leading-relaxed">
+                        Yesterday, I saw a 
+                        <input type="text" id="input-animal" placeholder="e.g. Lion" class="border-b-4 border-orange-300 p-1 bg-orange-50 focus:outline-none focus:border-orange-600 rounded-t-lg w-64 text-center transition-all" oninput="validateSteps()">.
+                    </div>
+                    <p id="animal-error" class="error-message">Oops! Check the animal in the photo. Is the name correct?</p>
+                </div>
+
+                <!-- STEP 2: Adjective -->
+                <div id="step-b" class="build-step">
+                    <h3 class="text-orange-600 font-bold mb-2">Step 2: How does it look? (Adjective)</h3>
+                    <div class="text-2xl leading-relaxed">
+                        It was 
+                        <input type="text" id="input-adj" placeholder="e.g. big / scary" class="border-b-4 border-orange-300 p-1 bg-orange-50 focus:outline-none focus:border-orange-600 rounded-t-lg w-64 text-center transition-all" oninput="validateSteps()">.
+                    </div>
+                </div>
+
+                <!-- STEP 3: Habitat -->
+                <div id="step-c" class="build-step">
+                    <h3 class="text-orange-600 font-bold mb-2">Step 3: Where does it live? (Place)</h3>
+                    <div class="text-2xl leading-relaxed">
+                        It lived in the 
+                        <input type="text" id="input-habitat" placeholder="e.g. jungle / river" class="border-b-4 border-orange-300 p-1 bg-orange-50 focus:outline-none focus:border-orange-600 rounded-t-lg w-64 text-center transition-all" oninput="validateSteps()">.
+                    </div>
+                </div>
+
+                <div class="flex justify-between items-center mt-10">
+                    <button class="btn-back" onclick="goToZone(1)">⬅️ BACK</button>
+                    <button id="btn-check-build" class="btn-adventure text-xl" onclick="finishBuild()" disabled>✅ FINISH SENTENCE</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ZONE 3: PAIR -->
+        <section id="zone-3" class="zone hidden fade-in">
+            <div class="wood-panel p-8 mb-10 text-center">
+                <h2 class="text-4xl mb-2">ZONE 3: PAIR 🗣️</h2>
+                <p class="text-xl italic opacity-90">"Practice this full conversation with your partner!"</p>
+            </div>
+
+            <div class="bg-white p-8 rounded-3xl shadow-xl max-w-4xl mx-auto mb-10 border-2 border-orange-100">
+                <div class="grid grid-cols-1 gap-6">
+                    
+                    <!-- Line 1 -->
+                    <div class="flex items-start gap-4">
+                        <div class="text-4xl">👦</div>
+                        <div class="chat-bubble w-full">
+                            <span class="text-orange-600 font-bold block text-sm uppercase">Friend:</span>
+                            <p class="text-xl">"What did you see at the zoo yesterday?"</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start gap-4 flex-row-reverse text-right">
+                        <div class="text-4xl">👧</div>
+                        <div class="chat-bubble w-full bg-orange-50 border-orange-300">
+                            <span class="text-orange-600 font-bold block text-sm uppercase">You:</span>
+                            <p class="text-xl">"I saw a <strong id="pair-animal" class="text-orange-700">...</strong>!"</p>
+                        </div>
+                    </div>
+
+                    <!-- Line 2 -->
+                    <div class="flex items-start gap-4">
+                        <div class="text-4xl">👦</div>
+                        <div class="chat-bubble w-full">
+                            <span class="text-orange-600 font-bold block text-sm uppercase">Friend:</span>
+                            <p class="text-xl">"What was it like?"</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start gap-4 flex-row-reverse text-right">
+                        <div class="text-4xl">👧</div>
+                        <div class="chat-bubble w-full bg-orange-50 border-orange-300">
+                            <span class="text-orange-600 font-bold block text-sm uppercase">You:</span>
+                            <p class="text-xl">"It was very <strong id="pair-adj" class="text-orange-700">...</strong>."</p>
+                        </div>
+                    </div>
+
+                    <!-- Line 3 -->
+                    <div class="flex items-start gap-4">
+                        <div class="text-4xl">👦</div>
+                        <div class="chat-bubble w-full">
+                            <span class="text-orange-600 font-bold block text-sm uppercase">Friend:</span>
+                            <p class="text-xl">"Where did it live?"</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start gap-4 flex-row-reverse text-right">
+                        <div class="text-4xl">👧</div>
+                        <div class="chat-bubble w-full bg-orange-50 border-orange-300">
+                            <span class="text-orange-600 font-bold block text-sm uppercase">You:</span>
+                            <p class="text-xl">"It lived in the <strong id="pair-habitat" class="text-orange-700">...</strong>."</p>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="flex justify-between items-center">
+                <button class="btn-back" onclick="goToZone(2)">⬅️ BACK</button>
+                <button class="btn-adventure text-xl" onclick="goToZone(4)">▶️ NEXT: CLASS SHARE</button>
+            </div>
+        </section>
+
+        <!-- ZONE 4: SHARE -->
+        <section id="zone-4" class="zone hidden fade-in">
+            <div class="wood-panel p-8 mb-10 text-center">
+                <h2 class="text-4xl mb-2">ZONE 4: SHARE 🎤</h2>
+                <p class="text-xl italic opacity-90">"Tell your story to the class!"</p>
+            </div>
+
+            <div class="bg-orange-50 rounded-3xl p-8 shadow-2xl border-4 border-orange-600 flex flex-col items-center">
+                <img id="final-img" src="" alt="Animal Photo" class="w-full max-w-lg h-72 object-cover rounded-3xl shadow-xl border-8 border-white mb-8">
+                
+                <div class="bg-white p-8 rounded-3xl shadow-lg text-center max-w-2xl w-full border-t-4 border-orange-400">
+                    <div class="text-3xl space-y-6 font-bold text-gray-800 leading-tight">
+                        <p>Yesterday, I saw a <span id="out-animal" class="text-orange-600 underline decoration-orange-300">...</span>.</p>
+                        <p>It was <span id="out-adj" class="text-orange-600 underline decoration-orange-300">...</span>.</p>
+                        <p>It lived in the <span id="out-habitat" class="text-orange-600 underline decoration-orange-300">...</span>.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-12 flex justify-between items-center">
+                <button class="btn-back" onclick="goToZone(3)">⬅️ BACK</button>
+                <button class="btn-adventure text-xl" onclick="goToZone(5)">🌟 MISSION COMPLETE</button>
+            </div>
+        </section>
+
+        <!-- ZONE 5: FINAL -->
+        <section id="zone-5" class="zone hidden fade-in">
+            <div class="text-center bg-white p-16 rounded-3xl shadow-2xl border-4 border-orange-500">
+                <div class="text-9xl mb-8">🎖️</div>
+                <h3 class="text-5xl font-bold text-orange-700 mb-4">Great Job!</h3>
+                <p class="text-2xl text-gray-600 mb-10">You finished your Zoo Adventure story.</p>
+                <button class="btn-adventure text-2xl" onclick="location.reload()">🎮 PLAY AGAIN</button>
+            </div>
+        </section>
+
+    </main>
+</div>
+
+<script>
+    let state = {
+        selectedId: '', 
+        animal: '',     
+        img: '',
+        adj: '',
+        habitat: ''
+    };
+
+    function selectAnimal(id, imgUrl) {
+        state.selectedId = id;
+        state.img = imgUrl;
+        document.querySelectorAll('.animal-card').forEach(c => c.classList.remove('selected'));
+        event.currentTarget.classList.add('selected');
+        
+        document.getElementById('selection-confirm').classList.remove('hidden');
+        document.getElementById('final-img').src = imgUrl;
+        document.getElementById('mini-animal-img').src = imgUrl;
+        document.getElementById('side-preview').classList.remove('hidden');
+        
+        // Reset inputs on new selection
+        document.getElementById('input-animal').value = '';
+        document.getElementById('input-adj').value = '';
+        document.getElementById('input-habitat').value = '';
+        validateSteps();
+    }
+
+    function validateSteps() {
+        const animalInput = document.getElementById('input-animal').value.trim().toLowerCase();
+        const adjInput = document.getElementById('input-adj').value.trim();
+        const habitatInput = document.getElementById('input-habitat').value.trim();
+        const errorEl = document.getElementById('animal-error');
+
+        let isAnimalCorrect = false;
+        if (animalInput.length > 0) {
+            isAnimalCorrect = (animalInput === state.selectedId.toLowerCase());
+            errorEl.style.display = isAnimalCorrect ? 'none' : 'block';
+        } else {
+            errorEl.style.display = 'none';
+        }
+
+        document.getElementById('mini-animal-hint').innerText = animalInput || "Animal";
+
+        const stepA = document.getElementById('step-a');
+        const stepB = document.getElementById('step-b');
+        const stepC = document.getElementById('step-c');
+
+        // Visual active state for steps
+        stepA.classList.toggle('active', !isAnimalCorrect);
+        stepB.classList.toggle('active', isAnimalCorrect && !adjInput);
+        stepC.classList.toggle('active', isAnimalCorrect && adjInput && !habitatInput);
+
+        // Enable button only if all filled correctly
+        document.getElementById('btn-check-build').disabled = !(isAnimalCorrect && adjInput.length > 0 && habitatInput.length > 0);
+    }
+
+    function finishBuild() {
+        state.animal = document.getElementById('input-animal').value.trim();
+        state.adj = document.getElementById('input-adj').value.trim();
+        state.habitat = document.getElementById('input-habitat').value.trim();
+
+        // Fill Pair Zone
+        document.getElementById('pair-animal').innerText = state.animal;
+        document.getElementById('pair-adj').innerText = state.adj;
+        document.getElementById('pair-habitat').innerText = state.habitat;
+
+        // Fill Share Zone
+        document.getElementById('out-animal').innerText = state.animal;
+        document.getElementById('out-adj').innerText = state.adj;
+        document.getElementById('out-habitat').innerText = state.habitat;
+
+        goToZone(3);
+    }
+
+    function goToZone(n) {
+        document.querySelectorAll('.zone').forEach(z => z.classList.add('hidden'));
+        document.getElementById(`zone-${n}`).classList.remove('hidden');
+        
+        const preview = document.getElementById('side-preview');
+        if (n === 1 || n === 5) {
+            preview.classList.add('hidden');
+        } else if (state.img) {
+            preview.classList.remove('hidden');
+        }
+
+        for(let i=1; i<=5; i++) {
+            const dot = document.getElementById(`nav-${i}`);
+            if (i <= n) dot.classList.add('step-active');
+            else dot.classList.remove('step-active');
+        }
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+</script>
+
+</body>
+</html>

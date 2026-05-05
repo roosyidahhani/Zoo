@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Past Tense Zoo Safari - Battle</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Bungee&family=Quicksand:wght@400;700&display=swap');
+        
+        body {
+            font-family: 'Quicksand', sans-serif;
+            background: #1a2e1a; /* Dark Jungle Green */
+            color: white;
+            min-height: 100vh;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            user-select: none;
+            touch-action: manipulation;
+        }
+
+        h1 { font-family: 'Bungee', cursive; }
+
+        .player-zone {
+            transition: all 0.3s ease;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            position: relative;
+        }
+
+        /* Zoo Themes: Safari Green vs Savanna Orange */
+        .player-a { 
+            background: #2d5a27; /* Forest Green */
+            border-right: 4px solid #1e3d1a; 
+            background-image: radial-gradient(#3a7532 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+        .player-b { 
+            background: #8b5a2b; /* Wooden Brown */
+            border-left: 4px solid #5d3a1d;
+            background-image: radial-gradient(#a06c3a 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+
+        .word-box {
+            background: #fef3c7; /* Light Parchment */
+            color: #1a2e1a;
+            padding: 1rem 2rem;
+            border-radius: 15px;
+            font-size: 2rem;
+            font-weight: 900;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 8px 0px #d97706;
+            border: 4px solid #92400e;
+            width: 80%;
+            text-align: center;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateY(15px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .option-btn {
+            background: rgba(255, 255, 255, 0.9);
+            color: #451a03;
+            border: 3px solid #92400e;
+            padding: 1.2rem;
+            border-radius: 15px;
+            width: 90%;
+            margin: 0.4rem 0;
+            font-weight: bold;
+            font-size: 1.25rem;
+            transition: all 0.1s;
+            text-align: center;
+            cursor: pointer;
+            box-shadow: 0 4px 0px #92400e;
+        }
+
+        .option-btn:active {
+            transform: translateY(4px);
+            box-shadow: none;
+        }
+
+        .shake { animation: shake 0.4s ease-in-out; }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-8px); }
+            75% { transform: translateX(8px); }
+        }
+
+        .correct-pop { animation: success 0.3s ease; }
+        @keyframes success {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .feedback-text {
+            position: absolute;
+            bottom: 10%;
+            font-size: 1.8rem;
+            font-weight: 800;
+            pointer-events: none;
+            text-shadow: 2px 2px 0px rgba(0,0,0,0.5);
+        }
+
+        .animal-icon {
+            font-size: 3rem;
+            margin-bottom: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="flex w-full h-screen relative">
+        
+        <!-- Player A Side -->
+        <div id="zone-a" class="player-zone w-1/2 player-a">
+            <div class="absolute top-6 left-6 flex items-center gap-3">
+                <div class="text-4xl">🦁</div>
+                <div>
+                    <h2 id="display-name-a" class="text-lg font-bold text-yellow-300">PLAYER A</h2>
+                    <div class="text-4xl font-black" id="score-a">0</div>
+                </div>
+            </div>
+            
+            <div id="content-a" class="flex flex-col items-center w-full hidden">
+                <div class="animal-icon">🌿</div>
+                <div class="text-xs font-bold mb-1 uppercase text-yellow-200">Past Tense of:</div>
+                <div id="verb-a" class="word-box">GO</div>
+                <div id="options-a" class="w-full flex flex-col items-center"></div>
+            </div>
+            
+            <div id="feedback-a" class="feedback-text"></div>
+        </div>
+
+        <!-- Player B Side -->
+        <div id="zone-b" class="player-zone w-1/2 player-b">
+            <div class="absolute top-6 right-6 text-right flex flex-row-reverse items-center gap-3">
+                <div class="text-4xl">🐘</div>
+                <div>
+                    <h2 id="display-name-b" class="text-lg font-bold text-yellow-200">PLAYER B</h2>
+                    <div class="text-4xl font-black" id="score-b">0</div>
+                </div>
+            </div>
+
+            <div id="content-b" class="flex flex-col items-center w-full hidden">
+                <div class="animal-icon">🍃</div>
+                <div class="text-xs font-bold mb-1 uppercase text-yellow-100">Past Tense of:</div>
+                <div id="verb-b" class="word-box">EAT</div>
+                <div id="options-b" class="w-full flex flex-col items-center"></div>
+            </div>
+
+            <div id="feedback-b" class="feedback-text"></div>
+        </div>
+
+        <!-- Setup Overlay (Name Input) -->
+        <div id="overlay" class="absolute inset-0 z-50 bg-[#1a2e1a]/95 flex flex-col items-center justify-center p-6 text-center">
+            <div class="text-6xl mb-4">🐾</div>
+            <h1 class="text-5xl text-yellow-400 mb-2 uppercase tracking-widest">ZOO SAFARI RACE</h1>
+            <p class="text-lg mb-8 text-green-200">Ayo tebak Past Tense sambil berpetualang!</p>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10 w-full max-w-2xl">
+                <div class="space-y-3 bg-green-900/40 p-4 rounded-2xl border-2 border-green-600">
+                    <label class="block text-yellow-400 font-bold uppercase tracking-tight">Pawang Singa (A)</label>
+                    <input type="text" id="input-name-a" placeholder="Nama Pemain 1" maxlength="12" 
+                        class="w-full bg-white/10 border-2 border-yellow-600 rounded-xl px-4 py-3 text-white text-center focus:outline-none focus:ring-4 focus:ring-yellow-500/50 transition">
+                </div>
+                <div class="space-y-3 bg-orange-900/40 p-4 rounded-2xl border-2 border-orange-600">
+                    <label class="block text-orange-400 font-bold uppercase tracking-tight">Pawang Gajah (B)</label>
+                    <input type="text" id="input-name-b" placeholder="Nama Pemain 2" maxlength="12" 
+                        class="w-full bg-white/10 border-2 border-orange-600 rounded-xl px-4 py-3 text-white text-center focus:outline-none focus:ring-4 focus:ring-orange-500/50 transition">
+                </div>
+            </div>
+
+            <button id="start-btn" class="bg-yellow-500 hover:bg-yellow-400 text-green-950 font-black py-4 px-14 rounded-full text-2xl shadow-[0_6px_0_#92400e] transition-all active:translate-y-1 active:shadow-none">MULAI PETUALANGAN!</button>
+        </div>
+
+        <!-- Victory Modal -->
+        <div id="victory-modal" class="hidden absolute inset-0 z-[100] bg-[#1a2e1a]/98 flex flex-col items-center justify-center p-6 text-center">
+            <div class="text-8xl mb-4 animate-bounce">👑</div>
+            <h2 id="winner-text" class="text-5xl font-black text-yellow-400 mb-8 tracking-tight">PLAYER A MENANG!</h2>
+            <button onclick="location.reload()" class="bg-yellow-500 text-green-950 font-bold py-4 px-12 rounded-full text-xl hover:bg-yellow-400 transition shadow-lg">MAIN LAGI</button>
+        </div>
+    </div>
+
+    <script>
+        const verbData = [
+            { v1: 'Go', v2: 'Went', options: ['Goes', 'Went', 'Gone'] },
+            { v1: 'Eat', v2: 'Ate', options: ['Eated', 'Ate', 'Eating'] },
+            { v1: 'Run', v2: 'Ran', options: ['Runned', 'Ran', 'Runs'] },
+            { v1: 'Sleep', v2: 'Slept', options: ['Slept', 'Sleeped', 'Sleeps'] },
+            { v1: 'Drink', v2: 'Drank', options: ['Drunk', 'Drinks', 'Drank'] },
+            { v1: 'Buy', v2: 'Bought', options: ['Buyed', 'Bought', 'Buying'] },
+            { v1: 'See', v2: 'Saw', options: ['Seen', 'Saw', 'Seed'] },
+            { v1: 'Write', v2: 'Wrote', options: ['Written', 'Writes', 'Wrote'] },
+            { v1: 'Play', v2: 'Played', options: ['Played', 'Play', 'Playes'] },
+            { v1: 'Watch', v2: 'Watched', options: ['Watches', 'Watching', 'Watched'] },
+            { v1: 'Cook', v2: 'Cooked', options: ['Cook', 'Cooked', 'Cooking'] },
+            { v1: 'Swim', v2: 'Swam', options: ['Swum', 'Swams', 'Swam'] },
+            { v1: 'Speak', v2: 'Spoke', options: ['Spoken', 'Spoke', 'Speaks'] },
+            { v1: 'Make', v2: 'Made', options: ['Makes', 'Maked', 'Made'] },
+            { v1: 'Give', v2: 'Gave', options: ['Gived', 'Given', 'Gave'] },
+            { v1: 'Sing', v2: 'Sang', options: ['Sung', 'Sang', 'Singed'] },
+            { v1: 'Fly', v2: 'Flew', options: ['Flown', 'Flyed', 'Flew'] },
+            { v1: 'Drive', v2: 'Drove', options: ['Driven', 'Drove', 'Drives'] },
+            { v1: 'Think', v2: 'Thought', options: ['Thinked', 'Thought', 'Thinking'] },
+            { v1: 'Know', v2: 'Knew', options: ['Known', 'Knowed', 'Knew'] }
+        ];
+
+        let names = { A: "PAWANG SINGA", B: "PAWANG GAJAH" };
+
+        let state = {
+            A: { score: 0, current: null, options: [], canAnswer: true },
+            B: { score: 0, current: null, options: [], canAnswer: true }
+        };
+
+        function initPlayer(p) {
+            const rand = Math.floor(Math.random() * verbData.length);
+            const question = verbData[rand];
+            state[p].current = question;
+            state[p].options = [...question.options].sort(() => Math.random() - 0.5);
+            state[p].canAnswer = true;
+
+            const verbDisplay = document.getElementById(`verb-${p.toLowerCase()}`);
+            const optionsDisplay = document.getElementById(`options-${p.toLowerCase()}`);
+            
+            verbDisplay.innerText = question.v1;
+            optionsDisplay.innerHTML = '';
+
+            state[p].options.forEach((opt) => {
+                const btn = document.createElement('div');
+                btn.className = "option-btn";
+                btn.innerText = opt;
+                btn.onclick = (e) => {
+                    e.preventDefault();
+                    handleAnswer(p, opt);
+                };
+                optionsDisplay.appendChild(btn);
+            });
+        }
+
+        function handleAnswer(player, selected) {
+            if (!state[player].canAnswer) return;
+            
+            const correct = state[player].current.v2;
+            const zone = document.getElementById(`zone-${player.toLowerCase()}`);
+            const feedback = document.getElementById(`feedback-${player.toLowerCase()}`);
+
+            state[player].canAnswer = false;
+
+            if (selected === correct) {
+                state[player].score += 10;
+                feedback.innerText = "HEBAT! +10";
+                feedback.className = "feedback-text text-green-400 correct-pop";
+                zone.classList.remove('shake');
+            } else {
+                state[player].score = Math.max(0, state[player].score - 5);
+                feedback.innerText = "UPS! -5";
+                feedback.className = "feedback-text text-yellow-400";
+                zone.classList.add('shake');
+                setTimeout(() => zone.classList.remove('shake'), 400);
+            }
+
+            document.getElementById(`score-${player.toLowerCase()}`).innerText = state[player].score;
+            
+            if (state[player].score >= 100) {
+                showVictory(player);
+                return;
+            }
+
+            setTimeout(() => {
+                feedback.innerText = "";
+                initPlayer(player);
+            }, 600);
+        }
+
+        function showVictory(player) {
+            const modal = document.getElementById('victory-modal');
+            const text = document.getElementById('winner-text');
+            modal.classList.remove('hidden');
+            text.innerText = `${names[player].toUpperCase()} RAJA HUTAN!`;
+            text.style.color = "#fbbf24";
+        }
+
+        document.getElementById('start-btn').onclick = () => {
+            const valA = document.getElementById('input-name-a').value.trim();
+            const valB = document.getElementById('input-name-b').value.trim();
+            
+            if(valA) names.A = valA;
+            if(valB) names.B = valB;
+
+            document.getElementById('display-name-a').innerText = names.A.toUpperCase();
+            document.getElementById('display-name-b').innerText = names.B.toUpperCase();
+
+            document.getElementById('overlay').classList.add('hidden');
+            document.getElementById('content-a').classList.remove('hidden');
+            document.getElementById('content-b').classList.remove('hidden');
+            initPlayer('A');
+            initPlayer('B');
+        };
+    </script>
+</body>
+</html>
